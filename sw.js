@@ -1,5 +1,5 @@
-/* 神将降魔 · 修仙放置 —— Service Worker（离线缓存） */
-const CACHE = "shenjiang-v1";
+/* 轮回修正 —— Service Worker（离线缓存） */
+const CACHE = "lunhui-v2";
 const ASSETS = [
   "./",
   "./index.html",
@@ -8,8 +8,8 @@ const ASSETS = [
   "./data/realms.js",
   "./data/paths.js",
   "./data/heroes.js",
-  "./data/stages.js",
   "./data/items.js",
+  "./data/world.js",
   "./js/util.js",
   "./js/data.js",
   "./js/store.js",

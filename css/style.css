@@ -208,3 +208,67 @@ input[type=text]:focus { border-color: var(--gold); }
 .empty { text-align: center; color: var(--muted); padding: 40px 0; font-size: 14px; }
 .center { text-align: center; }
 .mt { margin-top: 12px; }
+
+/* ---------- 格子地图 ---------- */
+.map-grid {
+  display: grid;
+  grid-template-columns: repeat(11, 1fr);
+  gap: 2px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 6px;
+  margin-bottom: 10px;
+}
+.cell {
+  aspect-ratio: 1;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; border-radius: 4px;
+  background: var(--surface2);
+  border: 1px solid transparent;
+  user-select: none; -webkit-user-select: none;
+}
+.cell.void { background: transparent; }
+.cell.rock { background: #26283a; color: #7a7f98; }
+.cell.water { background: #1a2a44; color: #5f8fd0; }
+.cell.plain { background: #1b1e30; color: #3d4258; }
+.cell.forest { background: #16261c; color: #3e9c62; }
+.cell.road { background: #2a2832; color: #8a7f63; }
+.cell.herb { background: #17301f; color: #59d98a; }
+.cell.ore { background: #33291a; color: #e0b45c; }
+.cell.mob { background: #331b1b; color: #e0675f; }
+.cell.mobbig { background: #3a1515; color: #ff8a7a; }
+.cell.boss { background: #2a1630; color: #d98ae0; }
+.cell.bld { background: #1f2440; color: #8fa4ff; }
+.cell.me {
+  background: linear-gradient(135deg, #e6c068, #b98f35);
+  color: #14100a; font-weight: 800;
+}
+.cell.reach { border-color: rgba(230, 192, 104, .5); }
+
+.locinfo {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 10px 12px; margin-bottom: 8px;
+}
+.locinfo .d { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+.actions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+
+/* ---------- 方向键 ---------- */
+.dpad { display: flex; flex-direction: column; align-items: center; gap: 6px; margin-bottom: 8px; }
+.dpad .drow { display: flex; gap: 6px; }
+.dbtn {
+  width: 46px; height: 40px; border-radius: 10px;
+  border: 1px solid var(--border); background: var(--surface2);
+  color: var(--gold); font-size: 16px; cursor: pointer;
+}
+.dbtn:active { background: #2b3052; transform: scale(.95); }
+
+/* ---------- 日志 ---------- */
+.logwrap { margin-bottom: 4px; }
+.log { max-height: 150px; overflow-y: auto; font-size: 12.5px; color: var(--muted); }
+.log p { margin: 2px 0; }
+.log p:last-child { color: var(--text); }
+
+/* ---------- 生命条 ---------- */
+.progress.hp .fill { background: linear-gradient(90deg, #3ecf8e, #5ee6a8); }

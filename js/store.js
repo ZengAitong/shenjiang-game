@@ -1,7 +1,7 @@
 /* 状态与存档：读档/存档/事件总线/有效属性计算 */
 (function () {
   "use strict";
-  var KEY = "shenjiang_save_v1";
+  var KEY = "lunhui_save_v1";
   var bus = { handlers: {} };
 
   var store = {};
@@ -17,24 +17,31 @@
 
   store.newGame = function (opts) {
     opts = opts || {};
-    return {
-      v: 1, created: Date.now(), updated: Date.now(), lastSeen: Date.now(),
+    var w = window.Game.data.world;
+    var s = {
+      v: 2, created: Date.now(), updated: Date.now(), lastSeen: Date.now(),
       player: {
         name: opts.name || "无名散修",
         path: opts.path || "lingxiu",
         linggen: opts.linggen || "shui",
-        realm: 0, exp: 0, breakMult: 1
+        x: w.start.x, y: w.start.y, lastZone: null,
+        realm: 0, exp: 0, breakMult: 1,
+        hp: 1, shouyuan: 1
       },
       lingShi: 100,
+      tiandao: 0,
       inventory: {},
       equipment: { weapon: null, armor: null, accessory: null },
       heroes: {},
-      stage: 0,
-      tiandao: 0,
       rebirth: { count: 0, points: 0 },
-      stats: { kills: 0, breakthroughs: 0 },
-      settings: { autoBreak: false }
+      cleared: {},
+      stats: { kills: 0, breakthroughs: 0, steps: 0 },
+      log: []
     };
+    var ps = store.stats(s);
+    s.player.hp = ps.hp;
+    s.player.shouyuan = ps.shouyuan;
+    return s;
   };
 
   store.load = function () {
@@ -66,7 +73,7 @@
     try { localStorage.removeItem(KEY); } catch (e) {}
   };
 
-  // 计算有效属性与战力
+  // 有效属性与战力（生命=上限）
   store.stats = function (s) {
     var d = window.Game.data;
     var r = d.realms[s.player.realm];
@@ -77,7 +84,6 @@
     var base = { hp: r.hp, atk: r.atk, def: r.def, qi: r.qi, shenshi: r.shenshi, strength: r.strength, speed: r.speed };
     var add = { hp: 0, atk: 0, def: 0, qi: 0, shenshi: 0, strength: 0, speed: 0 };
 
-    // 装备加成
     for (var slot in s.equipment) {
       var id = s.equipment[slot];
       if (!id) continue;
@@ -86,7 +92,6 @@
         for (var k in it.stats) { if (add[k] != null) add[k] += it.stats[k]; }
       }
     }
-    // 神将加成
     for (var hid in s.heroes) {
       var h = s.heroes[hid];
       if (!h || !h.owned) continue;
@@ -118,6 +123,12 @@
     out.tiandao = s.tiandao || 0;
     return out;
   };
+
+  store.addLog = function (s, text) {
+    s.log.push(text);
+    if (s.log.length > 80) s.log.splice(0, s.log.length - 80);
+  };
+  store.clearedKey = function (x, y) { return x + "," + y; };
 
   window.Game.store = store;
 })();

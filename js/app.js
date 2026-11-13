@@ -1,10 +1,9 @@
-/* 入口：启动、主循环、存档、事件委托 */
+/* 入口：启动、主循环（仅天道累计，无挂机收益）、存档、事件委托 */
 (function () {
   "use strict";
   var store = window.Game.store;
   var sys = window.Game.systems;
   var ui = window.Game.ui;
-  var util = window.Game.util;
 
   var app = {};
   var S = null;
@@ -16,8 +15,10 @@
   app.newGame = function (opts) {
     S = store.newGame(opts);
     S.heroes.nezha = { owned: true, level: 1 };
+    S.player.hp = store.stats(S).hp;
+    store.addLog(S, "你降生在天柱山脚下，从此踏上修仙之路。");
     store.save(S);
-    ui.screen = "cultivate";
+    ui.screen = "map";
     startTick();
     ui.render();
   };
@@ -35,11 +36,8 @@
     if (timer) clearInterval(timer);
     timer = setInterval(function () {
       if (!S) return;
-      S.tiandao = (S.tiandao || 0) + 2;          // 现实每秒 +2 小时天道
-      var ps = store.stats(S);
-      S.player.exp += ps.qiRate;                   // 打坐获得灵气
-      if (S.settings.autoBreak && sys.canBreak(S)) sys.breakthrough(S);
-      ui.tick(ps, S);
+      S.tiandao = (S.tiandao || 0) + 2; // 现实每秒 +2 小时天道（原设定）
+      ui.tick();
       if (Date.now() - S.lastSeen > 10000) store.save(S); // 约每 10 秒存档
     }, 1000);
   }
@@ -48,19 +46,6 @@
   function boot() {
     S = store.load();
     if (S) {
-      var now = Date.now();
-      var dt = now - (S.lastSeen || now);
-      if (dt > 60 * 1000) {
-        var g = sys.offlineGain(S, dt);
-        if (g.exp > 0 || g.ling > 0) {
-          sys.applyOffline(S, g);
-          store.save(S);
-          startTick();
-          ui.render();
-          ui.showOffline(g);
-          return;
-        }
-      }
       startTick();
       ui.render();
     } else {
@@ -72,7 +57,14 @@
   document.addEventListener("click", function (e) {
     var el = e.target.closest ? e.target.closest("[data-action]") : null;
     if (!el) return;
-    ui.handleAction(el.getAttribute("data-action"), el.getAttribute("data-id"));
+    ui.handleAction(el.getAttribute("data-action"), el.getAttribute("data-id"), el);
+  });
+
+  /* 键盘方向键（桌面调试用） */
+  document.addEventListener("keydown", function (e) {
+    var map = { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0] };
+    var mv = map[e.key];
+    if (mv && S) { e.preventDefault(); ui.movePlayer(mv[0], mv[1]); }
   });
 
   document.addEventListener("visibilitychange", function () {
