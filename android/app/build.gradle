@@ -6,6 +6,16 @@ android {
     namespace 'com.lunhui.xiuzheng'
     compileSdk 34
 
+    // 固定签名：保证每次云端编译出的 APK 签名一致，可以覆盖安装
+    signingConfigs {
+        stable {
+            storeFile rootProject.file("keystore.p12")
+            storePassword "lunhui2024"
+            keyAlias "lunhui"
+            keyPassword "lunhui2024"
+        }
+    }
+
     defaultConfig {
         applicationId "com.lunhui.xiuzheng"
         minSdk 21
@@ -15,9 +25,12 @@ android {
     }
 
     buildTypes {
+        debug {
+            signingConfig signingConfigs.stable
+        }
         release {
             minifyEnabled false
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.stable
         }
     }
 

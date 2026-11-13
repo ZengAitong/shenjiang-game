@@ -45,15 +45,20 @@
   };
 
   store.load = function () {
+    var raw = null;
     try {
-      if (window.Android && window.Android.load) {
-        var raw = window.Android.load();
-        if (raw) return JSON.parse(raw);
-      }
+      if (window.Android && window.Android.load) raw = window.Android.load();
     } catch (e) { console.error(e); }
+    if (!raw) {
+      try { raw = localStorage.getItem(KEY); } catch (e) { console.error(e); }
+    }
+    if (!raw) return null;
     try {
-      var r = localStorage.getItem(KEY);
-      if (r) return JSON.parse(r);
+      var s = JSON.parse(raw);
+      // 存档结构校验：v2 + 角色有坐标，旧版/损坏的存档一律丢弃
+      if (s && s.v === 2 && s.player && typeof s.player.x === "number" && typeof s.player.y === "number") {
+        return s;
+      }
     } catch (e) { console.error(e); }
     return null;
   };

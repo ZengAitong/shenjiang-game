@@ -13,6 +13,21 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="stylesheet" href="css/style.css">
+<script>
+/* 出错时在屏幕底部显示红条，方便排查问题 */
+window.addEventListener('error', function (e) {
+  try {
+    var d = document.getElementById('errbox');
+    if (!d) {
+      d = document.createElement('div');
+      d.id = 'errbox';
+      d.style.cssText = 'position:fixed;left:0;right:0;bottom:0;z-index:9999;background:#7a1f1f;color:#fff;font-size:12px;padding:8px;white-space:pre-wrap;max-height:40%;overflow:auto;font-family:monospace';
+      document.body.appendChild(d);
+    }
+    d.textContent += (d.textContent ? '\n' : '') + '⚠ ' + (e.message || e.error || '未知错误');
+  } catch (ex) {}
+});
+</script>
 </head>
 <body>
 <div id="app"></div>
