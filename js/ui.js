@@ -2,8 +2,8 @@
 (function () {
   "use strict";
   var u = window.Game.util;
-  var d = window.Game.data;
-  var st = window.Game.store;
+  var d = function () { return window.Game.data; };
+  var st = function () { return window.Game.store; };
   var sys = window.Game.systems;
   var G = window.GAME_DATA;
 
@@ -196,12 +196,12 @@
 
     var heroes = '<div class="card"><h3>神将（宗门招募）</h3>';
     var has = false;
-    d.heroes.forEach(function (hd) {
+    d().heroes.forEach(function (hd) {
       var own = s.heroes[hd.id];
       if (!own || !own.owned) return;
       has = true;
       var c = sys.upgradeHeroCost(own.level);
-      var rc = d.rarityClass(hd.rarity);
+      var rc = d().rarityClass(hd.rarity);
       heroes += '<div class="list-item"><div class="ic">' + hd.element + '</div>' +
         '<div class="grow"><div class="t">' + hd.name + ' <span class="tag ' + rc + '">' + hd.rarity + '</span></div>' +
         '<div class="d">' + hd.desc + ' · Lv.' + own.level + '</div></div>' +
@@ -219,7 +219,7 @@
     html += '<div class="card"><h3>装备</h3>';
     ["weapon", "armor", "accessory"].forEach(function (slot) {
       var id = s.equipment[slot];
-      var name = id ? d.itemById(id).name : "空";
+      var name = id ? d().itemById(id).name : "空";
       html += '<div class="list-item"><div class="ic">' + slotIcon(slot) + '</div><div class="grow"><div class="t">' + slotName(slot) + '</div><div class="d">' + name + '</div></div></div>';
     });
     html += '</div>';
@@ -228,7 +228,7 @@
     for (var id in s.inventory) {
       var n = s.inventory[id];
       if (n <= 0) continue;
-      var it = d.itemById(id);
+      var it = d().itemById(id);
       if (!it) continue;
       has = true;
       html += '<div class="list-item"><div class="ic">' + itemIcon(it.type) + '</div>' +
