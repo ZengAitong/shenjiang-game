@@ -39,7 +39,7 @@
 
   ui.topbarHTML = function (s) {
     return '<div class="topbar">' +
-      '<div><div class="title">神将降魔</div><div class="sub">修仙放置 · 框架</div></div>' +
+      '<div><div class="title">轮回修正</div><div class="sub">修仙放置</div></div>' +
       '<div class="spacer"></div>' +
       '<span class="muted" id="lingshi-top">🪙 ' + u.fmt(s.lingShi) + '</span>' +
       '<button class="icon-btn" data-action="settings">⚙</button>' +

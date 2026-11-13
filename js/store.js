@@ -39,17 +39,30 @@
 
   store.load = function () {
     try {
-      var raw = localStorage.getItem(KEY);
-      if (raw) return JSON.parse(raw);
+      if (window.Android && window.Android.load) {
+        var raw = window.Android.load();
+        if (raw) return JSON.parse(raw);
+      }
+    } catch (e) { console.error(e); }
+    try {
+      var r = localStorage.getItem(KEY);
+      if (r) return JSON.parse(r);
     } catch (e) { console.error(e); }
     return null;
   };
   store.save = function (s) {
     s.updated = Date.now();
     s.lastSeen = Date.now();
-    try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) { console.error(e); }
+    var json = JSON.stringify(s);
+    try {
+      if (window.Android && window.Android.save) { window.Android.save(json); return; }
+    } catch (e) { console.error(e); }
+    try { localStorage.setItem(KEY, json); } catch (e) { console.error(e); }
   };
   store.reset = function () {
+    try {
+      if (window.Android && window.Android.clear) { window.Android.clear(); }
+    } catch (e) { console.error(e); }
     try { localStorage.removeItem(KEY); } catch (e) {}
   };
 
