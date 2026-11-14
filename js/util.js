@@ -44,5 +44,16 @@
     return hh + "小时";
   };
 
+  // 道龄：时辰 → 年/月/天（12 时辰=1 天，30 天=1 月，12 月=1 年）
+  u.ageFmt = function (ticks) {
+    var hours = (ticks || 0) * 2;
+    var years = Math.floor(hours / 8640);
+    var months = Math.floor((hours % 8640) / 720);
+    var days = Math.floor((hours % 720) / 24);
+    if (years > 0) return years + "年" + months + "月";
+    if (months > 0) return months + "月" + days + "天";
+    return days + "天";
+  };
+
   window.Game.util = u;
 })();

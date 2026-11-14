@@ -212,39 +212,60 @@ input[type=text]:focus { border-color: var(--gold); }
 /* ---------- 格子地图 ---------- */
 .map-grid {
   display: grid;
-  grid-template-columns: repeat(11, 1fr);
-  gap: 2px;
+  grid-template-columns: repeat(9, 1fr);
+  gap: 3px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 6px;
+  padding: 8px;
   margin-bottom: 10px;
 }
 .cell {
-  aspect-ratio: 1;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 12px; border-radius: 4px;
+  height: 48px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 1px;
+  border-radius: 6px;
   background: var(--surface2);
   border: 1px solid transparent;
   user-select: none; -webkit-user-select: none;
+  overflow: hidden;
+}
+.cell .ci { font-size: 15px; line-height: 1.1; }
+.cell .cn {
+  font-size: 8px; line-height: 1.1; opacity: .95;
+  max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  padding: 0 2px;
 }
 .cell.void { background: transparent; }
-.cell.rock { background: #26283a; color: #7a7f98; }
-.cell.water { background: #1a2a44; color: #5f8fd0; }
-.cell.plain { background: #1b1e30; color: #3d4258; }
-.cell.forest { background: #16261c; color: #3e9c62; }
-.cell.road { background: #2a2832; color: #8a7f63; }
-.cell.herb { background: #17301f; color: #59d98a; }
-.cell.ore { background: #33291a; color: #e0b45c; }
-.cell.mob { background: #331b1b; color: #e0675f; }
-.cell.mobbig { background: #3a1515; color: #ff8a7a; }
-.cell.boss { background: #2a1630; color: #d98ae0; }
-.cell.bld { background: #1f2440; color: #8fa4ff; }
+.cell.rock { background: linear-gradient(160deg, #33364e, #26283a); color: #8a90a8; }
+.cell.water { background: linear-gradient(160deg, #1e3a5f, #14243d); color: #6fa8e8; }
+.cell.plain { background: linear-gradient(160deg, #242d2b, #18201f); color: #55695f; }
+.cell.forest { background: linear-gradient(160deg, #1d3323, #122217); color: #3e9c62; }
+.cell.road { background: linear-gradient(160deg, #3a3428, #2a2518); color: #9a8a6a; }
+.cell.herb { background: linear-gradient(160deg, #1f3d28, #142b1b); color: #59d98a; }
+.cell.ore { background: linear-gradient(160deg, #42351f, #2b2112); color: #e6c068; }
+.cell.mob { background: linear-gradient(160deg, #452222, #2b1414); color: #ff8a7a; }
+.cell.mobbig { background: linear-gradient(160deg, #521f1f, #331010); color: #ff9d8a; }
+.cell.boss { background: linear-gradient(160deg, #3c1f45, #241030); color: #e08af0; }
+.cell.bld { background: linear-gradient(160deg, #273055, #181e38); color: #9fb4ff; }
 .cell.me {
-  background: linear-gradient(135deg, #e6c068, #b98f35);
-  color: #14100a; font-weight: 800;
+  background: linear-gradient(135deg, #ffe08a, #e6a83e);
+  color: #1a1204; font-weight: 800;
+  box-shadow: 0 0 10px rgba(230, 192, 104, .8);
 }
-.cell.reach { border-color: rgba(230, 192, 104, .5); }
+.cell.reach { border-color: rgba(230, 192, 104, .45); }
+
+.story {
+  background: linear-gradient(135deg, #1d2136, #14172a);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 10px 12px; margin-bottom: 8px;
+  font-size: 13px; color: #c9c4e8;
+}
+.mapinfo { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.mapinfo .mi {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; padding: 3px 8px; font-size: 12px; color: var(--muted);
+}
 
 .locinfo {
   background: var(--surface); border: 1px solid var(--border);
@@ -272,3 +293,31 @@ input[type=text]:focus { border-color: var(--gold); }
 
 /* ---------- 生命条 ---------- */
 .progress.hp .fill { background: linear-gradient(90deg, #3ecf8e, #5ee6a8); }
+
+/* ---------- 角色信息面板 ---------- */
+.charhead { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.brow { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.brow .bl { width: 34px; font-size: 12px; color: var(--muted); flex-shrink: 0; }
+.brow .bv { font-size: 12px; color: var(--muted); flex-shrink: 0; font-variant-numeric: tabular-nums; }
+.brow .progress { flex: 1; }
+.cprow { text-align: center; margin-top: 2px; }
+.attr-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 10px; }
+.attr {
+  display: flex; justify-content: space-between; align-items: center;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 7px 10px;
+}
+.attr .ak { font-size: 12px; color: var(--muted); }
+.attr .av { font-size: 13px; font-weight: 600; }
+.root-grid { display: flex; flex-direction: column; gap: 7px; }
+.root { display: flex; align-items: center; gap: 10px; }
+.root .rl { width: 16px; font-size: 13px; font-weight: 600; }
+.root-bar {
+  flex: 1; height: 10px; background: var(--surface2);
+  border: 1px solid var(--border); border-radius: 5px; overflow: hidden;
+}
+.root-bar i {
+  display: block; height: 100%;
+  background: linear-gradient(90deg, #6f5fd8, #9a7bff);
+}
+.root .rv { width: 32px; font-size: 11px; color: var(--muted); text-align: right; }

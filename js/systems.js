@@ -16,6 +16,7 @@
 
     s.player.shouyuan -= (ch === "r" ? 0.005 : 0.01); // 移动消耗寿元
     s.player.x = nx; s.player.y = ny;
+    s.player.age = (s.player.age || 0) + 1;
     s.stats.steps += 1;
 
     var res = { ok: true, x: nx, y: ny };
@@ -35,6 +36,7 @@
       else if (ch === "f" && util.chance(0.12)) { res.monster = d().world.monsters.fenglang; res.ambush = true; }
       else if (ch === "." && util.chance(0.04)) { res.monster = d().world.monsters.fenglang; res.ambush = true; }
     }
+    if (lg.building === "sect") s.player.sect = "无量神宫"; // 踏入宗门，登记门墙
     S.afterAction(s);
     return res;
   };
@@ -54,6 +56,7 @@
       gains = { xuantie: 1, lingShi: 20 };
     }
     s.cleared[st().clearedKey(x, y)] = true;
+    s.player.age = (s.player.age || 0) + 1;
     S.afterAction(s);
     return gains;
   };
@@ -103,6 +106,7 @@
         }
       });
       s.player.shouyuan -= 0.02;
+      s.player.age = (s.player.age || 0) + 2;
       res.rewards = { lingShi: ling, items: items };
     }
     S.afterAction(s);
@@ -174,6 +178,7 @@
     var heal = Math.round(ps.hp * 0.2);
     s.player.hp = Math.min(ps.hp, s.player.hp + heal);
     s.player.shouyuan -= 0.02;
+    s.player.age = (s.player.age || 0) + 2;
     S.afterAction(s);
     return { exp: gain, heal: heal, atRoom: !!atRoom };
   };
@@ -221,6 +226,7 @@
     s.player.x = x;
     s.player.y = y;
     s.player.shouyuan -= 0.05;
+    s.player.age = (s.player.age || 0) + 6;
     var zone = d().zoneAt(x, y);
     s.player.lastZone = zone.id;
     st().addLog(s, "传送到了「" + zone.name + "」。");
@@ -233,6 +239,7 @@
     var r = Math.random();
     var res = {};
     s.player.shouyuan -= 0.01;
+    s.player.age = (s.player.age || 0) + 2;
     if (r < 0.4) {
       var p = Math.random();
       var id = p < 0.6 ? "lingyu" : (p < 0.85 ? "xuantie_jing" : "shenmo_ling");
@@ -261,6 +268,7 @@
     var gain = Math.round(st().stats(s).qiRate * 50);
     s.player.exp += gain;
     s.player.shouyuan -= 0.05;
+    s.player.age = (s.player.age || 0) + 4;
     S.afterAction(s);
     return { ok: true, exp: gain };
   };

@@ -24,6 +24,10 @@
         name: opts.name || "无名散修",
         path: opts.path || "lingxiu",
         linggen: opts.linggen || "shui",
+        uid: Math.floor(100000 + Math.random() * 900000),
+        age: 0,
+        sect: "散修",
+        linggenVals: null,
         x: w.start.x, y: w.start.y, lastZone: null,
         realm: 0, exp: 0, breakMult: 1,
         hp: 1, shouyuan: 1
@@ -41,6 +45,9 @@
     var ps = store.stats(s);
     s.player.hp = ps.hp;
     s.player.shouyuan = ps.shouyuan;
+    var lv = { jin: 10, mu: 10, shui: 10, huo: 10, tu: 10 };
+    lv[s.player.linggen] = 100;
+    s.player.linggenVals = lv;
     return s;
   };
 
@@ -57,6 +64,15 @@
       var s = JSON.parse(raw);
       // 存档结构校验：v2 + 角色有坐标，旧版/损坏的存档一律丢弃
       if (s && s.v === 2 && s.player && typeof s.player.x === "number" && typeof s.player.y === "number") {
+        // 老存档补齐新字段
+        if (s.player.uid == null) s.player.uid = Math.floor(100000 + Math.random() * 900000);
+        if (s.player.age == null) s.player.age = 0;
+        if (s.player.sect == null) s.player.sect = "散修";
+        if (!s.player.linggenVals) {
+          var lv = { jin: 10, mu: 10, shui: 10, huo: 10, tu: 10 };
+          lv[s.player.linggen] = 100;
+          s.player.linggenVals = lv;
+        }
         return s;
       }
     } catch (e) { console.error(e); }
@@ -126,6 +142,7 @@
     out.realmDesc = r.desc;
     out.shouyuan = r.shouyuan || 0;
     out.tiandao = s.tiandao || 0;
+    out.meridian = (s.player.realm + 1) * 20;
     return out;
   };
 

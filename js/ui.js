@@ -19,22 +19,22 @@
   ];
 
   ui.SYMBOLS = {
-    '#': { s: "山", c: "rock" },
-    '~': { s: "水", c: "water" },
-    '.': { s: "·", c: "plain" },
-    'f': { s: "林", c: "forest" },
-    'r': { s: "·", c: "road" },
-    'c': { s: "草", c: "herb" },
-    'm': { s: "矿", c: "ore" },
-    'g': { s: "妖", c: "mob" },
-    'G': { s: "妖", c: "mobbig" },
-    'B': { s: "王", c: "boss" },
-    's': { s: "宗", c: "bld" },
-    'd': { s: "修", c: "bld" },
-    'b': { s: "市", c: "bld" },
-    'p': { s: "阵", c: "bld" },
-    'x': { s: "迹", c: "bld" },
-    '@': { s: "我", c: "me" }
+    '#': { i: "⛰", n: "", c: "rock" },
+    '~': { i: "🌊", n: "", c: "water" },
+    '.': { i: "", n: "", c: "plain" },
+    'f': { i: "🌲", n: "", c: "forest" },
+    'r': { i: "", n: "", c: "road" },
+    'c': { i: "🌿", n: "灵草", c: "herb" },
+    'm': { i: "⛏", n: "矿脉", c: "ore" },
+    'g': { i: "🐺", n: "小妖", c: "mob" },
+    'G': { i: "👹", n: "大妖", c: "mobbig" },
+    'B': { i: "👑", n: "BOSS", c: "boss" },
+    's': { i: "⛩", n: "宗门", c: "bld" },
+    'd': { i: "🧘", n: "练功房", c: "bld" },
+    'b': { i: "🏪", n: "坊市", c: "bld" },
+    'p': { i: "🌀", n: "传送阵", c: "bld" },
+    'x': { i: "🏛", n: "遗迹", c: "bld" },
+    '@': { i: "🧍", n: "", c: "me" }
   };
 
   function app() { return window.Game.app; }
@@ -81,18 +81,22 @@
   ui.cellHTML = function (tx, ty, s) {
     var ch = d().tileAt(tx, ty);
     var isPlayer = (tx === s.player.x && ty === s.player.y);
-    var cleared = ch && (ch === "c" || ch === "m" || ch === "g" || ch === "G" || ch === "B") &&
-      s.cleared[st().clearedKey(tx, ty)];
-    var sym = "", cls = "cell";
-    if (ch == null) { cls += " void"; }
-    else if (cleared) { sym = "·"; cls += " plain"; }
-    else {
-      var m = ui.SYMBOLS[ch] || { s: "?", c: "plain" };
-      sym = m.s; cls += " " + m.c;
+    var cleared = ch && "cmgGB".indexOf(ch) >= 0 && s.cleared[st().clearedKey(tx, ty)];
+    var icon = "", label = "", cls = "cell";
+    if (ch == null) {
+      cls += " void";
+    } else if (cleared) {
+      cls += " plain";
+    } else {
+      var m = ui.SYMBOLS[ch] || { i: "", n: "", c: "plain" };
+      icon = m.i; label = m.n; cls += " " + m.c;
     }
-    if (isPlayer) { sym = "我"; cls += " me"; }
+    if (isPlayer) { icon = "🧍"; label = "我"; cls += " me"; }
     if (Math.abs(tx - s.player.x) + Math.abs(ty - s.player.y) === 1) cls += " reach";
-    return '<div class="' + cls + '" data-action="cellmove" data-x="' + tx + '" data-y="' + ty + '">' + sym + '</div>';
+    return '<div class="' + cls + '" data-action="cellmove" data-x="' + tx + '" data-y="' + ty + '">' +
+      '<span class="ci">' + icon + '</span>' +
+      (label ? '<span class="cn">' + label + '</span>' : "") +
+      '</div>';
   };
 
   ui.actionHTML = function (s, lg, cleared) {
@@ -134,23 +138,33 @@
     var lg = d().legendOf(ch);
     var cleared = s.cleared[st().clearedKey(s.player.x, s.player.y)];
     var cells = [];
-    for (var dy = -5; dy <= 5; dy++) {
-      for (var dx = -5; dx <= 5; dx++) {
+    for (var dy = -4; dy <= 4; dy++) {
+      for (var dx = -4; dx <= 4; dx++) {
         cells.push(ui.cellHTML(s.player.x + dx, s.player.y + dy, s));
       }
     }
     var stateNote = "";
     if (cleared && lg.type === "monster") stateNote = "（已伏诛）";
     if (cleared && (lg.type === "herb" || lg.type === "ore")) stateNote = "（已采集）";
-    return '<div class="map-grid">' + cells.join("") + '</div>' +
-      '<div class="locinfo"><b>' + zone.name + '</b><span class="muted"> · ' + lg.name + stateNote + '</span>' +
-      '<div class="d">' + u.esc(zone.desc) + '</div></div>' +
+    var curName = lg.name;
+    if (!cleared && lg.type === "monster") {
+      var mn = d().monsterOf(ch, zone.id);
+      if (mn) curName = mn.name;
+    }
+    return '<div class="story">' + u.esc(zone.desc) + '</div>' +
+      '<div class="mapinfo">' +
+      '<span class="mi">🗺 ' + zone.name + '</span>' +
+      '<span class="mi">📍 [' + s.player.x + ', ' + s.player.y + ']</span>' +
+      '<span class="mi">🚶 1</span>' +
+      '<span class="mi">👣 ' + curName + stateNote + '</span>' +
+      '</div>' +
+      '<div class="map-grid">' + cells.join("") + '</div>' +
       '<div class="actions">' + ui.actionHTML(s, lg, cleared) + '</div>' +
       ui.dpadHTML() +
       ui.logHTML(s);
   };
 
-  /* ---------- 角色页 ---------- */
+  /* ---------- 角色页（参考原版信息面板） ---------- */
   ui.charHTML = function (s) {
     var ps = st().stats(s);
     var path = d().pathById(s.player.path) || {};
@@ -166,34 +180,78 @@
       var nr = d().realmAt(s.player.realm + 1);
       next = "突破 · " + nr.name + (nr.sub ? " " + nr.sub : "");
     }
+    var expTxt = maxed ? "已圆满" : u.fmt(Math.floor(s.player.exp)) + " / " + u.fmt(need);
 
-    var card = '<div class="hero-card">' +
+    function attr(k, v, id) {
+      return '<div class="attr"><span class="ak">' + k + '</span><span class="av"' + (id ? ' id="' + id + '"' : "") + '>' + v + '</span></div>';
+    }
+
+    // 角色信息
+    var head = '<div class="charhead">' +
       '<div class="avatar">' + (path.icon || "修") + '</div>' +
-      '<div class="grow"><div class="hero-name">' + u.esc(s.player.name) + '</div>' +
-      '<div class="hero-realm">' + ps.realmName + (cur.sub ? " · " + cur.sub : "") + '</div>' +
-      '<div class="muted" style="font-size:11px">' + u.esc(ps.realmDesc) + '</div></div>' +
-      '<div class="center"><div class="muted" style="font-size:11px">战力</div><div class="cp-big" id="cp-val">' + u.fmt(ps.cp) + '</div></div>' +
+      '<div class="grow"><div class="hero-name">' + u.esc(s.player.name) +
+      ' <span class="muted" style="font-size:11px;font-weight:400">(ID: ' + (s.player.uid || "") + ')</span></div>' +
+      '<div class="muted" style="font-size:12px">' + path.name + ' · ' + (s.player.sect || "散修") + '</div></div>' +
+      '<button class="btn sm ghost" data-action="copyId">复制ID</button>' +
       '</div>';
+    var bars = '<div class="brow"><span class="bl">生命</span>' +
+      '<div class="progress hp"><div class="fill" id="hp-fill" style="width:' + hpPct + '%"></div><div class="txt" id="hp-txt">' + hpPct.toFixed(0) + '%</div></div>' +
+      '<span class="bv" id="hp-bv">' + u.fmt(Math.max(0, Math.floor(s.player.hp))) + '/' + u.fmt(ps.hp) + '</span></div>' +
+      '<div class="brow"><span class="bl">灵气</span>' +
+      '<div class="progress gold"><div class="fill" id="exp-fill" style="width:' + expPct + '%"></div><div class="txt" id="exp-txt">' + expPct.toFixed(1) + '%</div></div>' +
+      '<span class="bv" id="exp-bv">' + expTxt + '</span></div>';
+    var card1 = '<div class="card">' + head + bars +
+      '<div class="cprow">战力 <b class="gold" id="cp-val" style="font-size:20px">' + u.fmt(ps.cp) + '</b></div></div>';
 
-    var hp = '<div class="card"><h3>生命 ' + u.fmt(Math.max(0, Math.floor(s.player.hp))) + ' / ' + u.fmt(ps.hp) + '</h3>' +
-      '<div class="progress hp"><div class="fill" id="hp-fill" style="width:' + hpPct + '%"></div><div class="txt" id="hp-txt">' + hpPct.toFixed(0) + '%</div></div></div>';
-
-    var exp = '<div class="card"><h3>灵气 ' + (maxed ? "已圆满" : u.fmt(Math.floor(s.player.exp)) + " / " + u.fmt(need)) + '</h3>' +
-      '<div class="progress gold"><div class="fill" id="exp-fill" style="width:' + expPct + '%"></div><div class="txt" id="exp-txt">' + (maxed ? "已圆满" : expPct.toFixed(1) + "%") + '</div></div>' +
-      '<button class="btn block mt" id="break-btn" data-action="break" ' + (canBreak ? "" : "disabled") + '>' + next + '</button>' +
-      '<button class="btn block ghost mt" data-action="meditate">打坐修炼</button></div>';
-
-    var grid = '<div class="card"><h3>属性</h3><div class="stats-grid">' +
-      statBox("攻击", u.fmt(ps.atk)) + statBox("防御", u.fmt(ps.def)) + statBox("气海", u.fmt(ps.qi)) +
-      statBox("神识", u.fmt(ps.shenshi)) + statBox("力量", u.fmt(ps.strength)) + statBox("速度", u.fmt(ps.speed)) +
-      statBox("寿元", u.fmt(Math.max(0, Math.floor(s.player.shouyuan))) + "年") + statBox("天道", u.tiandao(ps.tiandao), "tiandao-val") + statBox("轮回点", s.rebirth.points) +
+    // 属性
+    var card2 = '<div class="card"><h3>属性</h3><div class="attr-grid">' +
+      attr("境界", '<span class="gold">' + ps.realmName + (cur.sub ? "·" + cur.sub : "") + '</span>') +
+      attr("宗门", s.player.sect || "散修") +
+      attr("寿元", u.fmt(Math.max(0, Math.floor(s.player.shouyuan))) + "年") +
+      attr("道龄", u.ageFmt(s.player.age)) +
+      attr("天道", u.tiandao(ps.tiandao), "tiandao-val") +
+      attr("脉络", u.fmt(ps.meridian)) +
+      attr("气海", u.fmt(ps.qi)) +
+      attr("神识", u.fmt(ps.shenshi)) +
+      attr("力量", u.fmt(ps.strength)) +
+      attr("速度", u.fmt(ps.speed)) +
+      attr("攻击", u.fmt(ps.atk)) +
+      attr("防御", u.fmt(ps.def)) +
+      attr("功德", s.rebirth.points) +
+      attr("煞气", "0") +
+      attr("抗药性", "0%") +
+      attr("精力", "100/100") +
       '</div></div>';
 
-    var inherit = '<div class="card"><h3>传承</h3>' +
-      '<div class="list-item"><div class="ic">' + path.icon + '</div><div class="grow"><div class="t">' + path.name + '</div><div class="d">' + path.desc + '</div></div></div>' +
-      '<div class="list-item" style="margin-top:8px"><div class="ic">' + lg.icon + '</div><div class="grow"><div class="t">' + lg.name + '</div><div class="d">' + lg.desc + '</div></div></div>' +
-      '</div>';
+    // 灵根（五行条）
+    var roots = [["jin", "金"], ["mu", "木"], ["shui", "水"], ["huo", "火"], ["tu", "土"]];
+    var rootHtml = roots.map(function (r) {
+      var v = (s.player.linggenVals || {})[r[0]] || 0;
+      return '<div class="root"><span class="rl">' + r[1] + '</span>' +
+        '<div class="root-bar"><i style="width:' + v + '%"></i></div>' +
+        '<span class="rv">' + v + '</span></div>';
+    }).join("");
+    var card3 = '<div class="card"><h3>灵根</h3><div class="root-grid">' + rootHtml + '</div></div>';
 
+    // 行为（加成）
+    var bList = [
+      ["全属性加成", "+" + (s.rebirth.points * 10) + "%"],
+      ["突破属性加成", "+" + Math.round((s.player.breakMult - 1) * 100) + "%"]
+    ];
+    var bMap = { atk: "攻击加成", hp: "生命加成", def: "防御加成", qiRate: "修炼速度加成" };
+    for (var bk in (lg.bonus || {})) {
+      if (bMap[bk]) bList.push([bMap[bk], "+" + Math.round(lg.bonus[bk] * 100) + "%"]);
+    }
+    var bonusHtml = bList.map(function (b) { return attr(b[0], b[1]); }).join("");
+    var card4 = '<div class="card"><h3>行为</h3><div class="attr-grid">' + bonusHtml + '</div></div>';
+
+    // 修炼
+    var card5 = '<div class="card"><h3>修炼</h3>' +
+      '<button class="btn block" id="break-btn" data-action="break" ' + (canBreak ? "" : "disabled") + '>' + next + '</button>' +
+      '<button class="btn block ghost mt" data-action="meditate">打坐修炼</button>' +
+      '<div class="muted center" style="margin-top:8px;font-size:12px">练功房闭关 ×3 收益 · 天道每秒 +2 小时</div></div>';
+
+    // 神将
     var heroes = '<div class="card"><h3>神将（宗门招募）</h3>';
     var has = false;
     d().heroes.forEach(function (hd) {
@@ -210,7 +268,7 @@
     if (!has) heroes += '<div class="empty">尚未招募神将，去无量神宫招募</div>';
     heroes += '</div>';
 
-    return card + hp + exp + grid + inherit + heroes;
+    return card1 + card2 + card3 + card4 + card5 + heroes;
   };
 
   /* ---------- 背包页 ---------- */
@@ -442,7 +500,9 @@
     var ef = document.getElementById("exp-fill"); if (ef) ef.style.width = expPct + "%";
     var hpPct = u.clamp(s.player.hp / Math.max(1, ps.hp) * 100, 0, 100);
     set("hp-txt", hpPct.toFixed(0) + "%");
+    set("hp-bv", u.fmt(Math.max(0, Math.floor(s.player.hp))) + "/" + u.fmt(ps.hp));
     var hf = document.getElementById("hp-fill"); if (hf) hf.style.width = hpPct + "%";
+    set("exp-bv", maxed ? "已圆满" : u.fmt(Math.floor(s.player.exp)) + " / " + u.fmt(need));
     set("cp-val", u.fmt(ps.cp));
     set("lingshi-top", "🪙 " + u.fmt(s.lingShi));
     set("lingshi-val", "🪙 " + u.fmt(s.lingShi));
@@ -599,6 +659,18 @@
       case "confirmReset": ui.confirmReset(); break;
       case "resetSave": { ui.closeModal(); app().reset(); ui.toast("存档已删除"); break; }
       case "closeModal": ui.closeModal(); break;
+      case "copyId": {
+        var txt = String(s.player.uid || "");
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(txt);
+            ui.toast("ID 已复制");
+          } else {
+            ui.toast("ID: " + txt);
+          }
+        } catch (e2) { ui.toast("ID: " + txt); }
+        break;
+      }
       case "pickPath": ui.draft.name = ui.readName(); ui.draft.path = id; ui.render(); break;
       case "pickLinggen": ui.draft.name = ui.readName(); ui.draft.linggen = id; ui.render(); break;
       case "startGame": app().newGame({ name: ui.readName() || "无名散修", path: ui.draft.path, linggen: ui.draft.linggen }); break;
